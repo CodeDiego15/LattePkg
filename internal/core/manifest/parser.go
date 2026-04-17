@@ -1,8 +1,10 @@
+// Package manifest provides manifest parsing, validation and
+// management utilities for Armada. It builds on the public types from
+// github.com/DiegoDev2/Fleet/pkg/manifest.
 package manifest
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -10,24 +12,27 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func ParseFile(filePath string) (*manifest.Manifest, error) {
-	data, err := ioutil.ReadFile(filePath)
+// ParseFile reads and parses a manifest YAML file.
+func ParseFile(path string) (*manifest.Manifest, error) {
+	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("error al leer archivo de manifiesto: %w", err)
+		return nil, fmt.Errorf("read manifest %s: %w", path, err)
 	}
-
 	return Parse(data)
 }
 
+// Parse decodes YAML bytes into a Manifest.
 func Parse(data []byte) (*manifest.Manifest, error) {
-	var manifest manifest.Manifest
-	if err := yaml.Unmarshal(data, &manifest); err != nil {
-		return nil, fmt.Errorf("error al analizar manifiesto: %w", err)
+	var m manifest.Manifest
+	if err := yaml.Unmarshal(data, &m); err != nil {
+		return nil, fmt.Errorf("parse manifest: %w", err)
 	}
-
-	return &manifest, nil
+	return &m, nil
 }
 
+// ParseDirectory recursively parses every .yaml/.yml file under dirPath.
+// Unparseable files are returned as errors instead of being silently
+// skipped.
 func ParseDirectory(dirPath string) (map[string]*manifest.Manifest, error) {
 	manifests := make(map[string]*manifest.Manifest)
 
@@ -35,28 +40,25 @@ func ParseDirectory(dirPath string) (map[string]*manifest.Manifest, error) {
 		if err != nil {
 			return err
 		}
-
 		if info.IsDir() {
 			return nil
 		}
-
 		ext := filepath.Ext(path)
 		if ext != ".yaml" && ext != ".yml" {
 			return nil
 		}
-
-		manifest, err := ParseFile(path)
+		m, err := ParseFile(path)
 		if err != nil {
-			return fmt.Errorf("error al analizar %s: %w", path, err)
+			return fmt.Errorf("parse %s: %w", path, err)
 		}
-
-		manifests[manifest.Name] = manifest
+		if m.Name == "" {
+			return fmt.Errorf("%s: manifest is missing the 'name' field", path)
+		}
+		manifests[m.Name] = m
 		return nil
 	})
-
 	if err != nil {
-		return nil, fmt.Errorf("error al recorrer directorio: %w", err)
+		return nil, err
 	}
-
 	return manifests, nil
 }

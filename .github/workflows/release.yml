@@ -5,9 +5,29 @@ on:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+            ext: .exe
+          - goos: windows
+            goarch: arm64
+            ext: .exe
 
     steps:
       - name: Checkout repository
@@ -16,18 +36,40 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: '1.23'
 
       - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
         run: |
           mkdir -p dist
-    
-          GOOS=darwin GOARCH=amd64 go build -o dist/fleet-darwin-amd64 .
-          
+          VERSION="${GITHUB_REF_NAME}"
+          OUT="dist/armada-${GOOS}-${GOARCH}${{ matrix.ext }}"
+          go build -trimpath \
+            -ldflags "-s -w -X github.com/DiegoDev2/Fleet/internal/cli/cmd.Version=${VERSION}" \
+            -o "${OUT}" ./cmd/armada
 
-      - name: Upload release to GitHub
+      - name: Package
+        run: |
+          cd dist
+          BASE="armada-${{ github.ref_name }}-${{ matrix.goos }}-${{ matrix.goarch }}"
+          BIN="armada-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}"
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            zip "${BASE}.zip" "${BIN}"
+            sha256sum "${BASE}.zip" > "${BASE}.zip.sha256"
+          else
+            tar czf "${BASE}.tar.gz" "${BIN}"
+            sha256sum "${BASE}.tar.gz" > "${BASE}.tar.gz.sha256"
+          fi
+
+      - name: Upload release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*
+          files: |
+            dist/armada-*.tar.gz
+            dist/armada-*.zip
+            dist/armada-*.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
