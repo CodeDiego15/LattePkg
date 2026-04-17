@@ -12,6 +12,7 @@
 package config
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -106,7 +107,11 @@ func Default() Config {
 }
 
 // Load reads the configuration from the given path. If the file does not
-// exist, Load returns the Default configuration and nil.
+// exist, Load returns the Default configuration and nil. If the file
+// exists but is empty, Default is also returned so first-time users get
+// the seeded repository list. Once the file has any explicit content
+// (even an empty repositories list) it is honoured verbatim so a user
+// who intentionally removes every repository is not silently overridden.
 func Load(path string) (Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -116,12 +121,13 @@ func Load(path string) (Config, error) {
 		return Config{}, fmt.Errorf("read config: %w", err)
 	}
 
+	if len(bytes.TrimSpace(data)) == 0 {
+		return Default(), nil
+	}
+
 	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return Config{}, fmt.Errorf("parse config: %w", err)
-	}
-	if len(cfg.Repositories) == 0 {
-		return Default(), nil
 	}
 	return cfg, nil
 }

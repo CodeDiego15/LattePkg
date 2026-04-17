@@ -1,4 +1,4 @@
-// Package archive extracts tar / tar.gz / tar.xz / tar.bz2 / zip archives.
+// Package archive extracts tar / tar.gz / tar.bz2 / zip archives.
 // Raw binaries ("raw") are copied verbatim into the destination directory
 // with the same base name as the source file.
 package archive
@@ -209,17 +209,19 @@ func stripComponents(name string, strip int) string {
 }
 
 // securePath joins base and name, rejecting paths that escape base.
+// The check relies on filepath.Rel, which is the canonical way to decide
+// whether a cleaned path lies inside base on any platform.
 func securePath(base, name string) (string, error) {
-	cleaned := filepath.Clean(name)
-	if strings.HasPrefix(cleaned, "..") || strings.Contains(cleaned, ".."+string(os.PathSeparator)) {
-		return "", fmt.Errorf("refusing to extract %q: path traversal", name)
+	if filepath.IsAbs(name) {
+		return "", fmt.Errorf("refusing to extract %q: absolute path", name)
 	}
+	cleaned := filepath.Clean(name)
 	target := filepath.Join(base, cleaned)
 	rel, err := filepath.Rel(base, target)
 	if err != nil {
 		return "", fmt.Errorf("invalid path %q: %w", name, err)
 	}
-	if strings.HasPrefix(rel, "..") {
+	if rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
 		return "", fmt.Errorf("refusing to extract %q: path traversal", name)
 	}
 	return target, nil

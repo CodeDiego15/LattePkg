@@ -181,13 +181,19 @@ func (i *Installer) linkBinaries(pkgDir string, binaries []string) ([]string, er
 // findBinary looks for bin (optionally with suffix) inside pkgDir. It walks
 // the directory tree so manifests only need to declare the binary name and
 // not its exact path within the archive.
+//
+// The direct lookup honours any slashes in bin (e.g. "bin/tool"). The walk
+// fallback matches by leaf name only so manifests written against slightly
+// different upstream archive layouts still resolve. The first match wins
+// and the walk stops immediately rather than continuing to traverse
+// unrelated subtrees.
 func findBinary(pkgDir, bin, suffix string) (string, error) {
 	candidates := []string{bin}
 	if suffix != "" && filepath.Ext(bin) == "" {
 		candidates = append(candidates, bin+suffix)
 	}
 
-	// Fast path: direct lookup.
+	// Fast path: direct lookup at the declared path.
 	for _, c := range candidates {
 		p := filepath.Join(pkgDir, c)
 		if info, err := os.Stat(p); err == nil && !info.IsDir() {
@@ -195,21 +201,24 @@ func findBinary(pkgDir, bin, suffix string) (string, error) {
 		}
 	}
 
-	// Slow path: walk.
+	// Build the set of acceptable leaf names for the walk fallback.
+	leaves := make(map[string]struct{}, len(candidates))
+	for _, c := range candidates {
+		leaves[filepath.Base(c)] = struct{}{}
+	}
+
+	// Slow path: walk. Return the first match and stop the walk entirely.
 	var found string
-	err := filepath.Walk(pkgDir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.WalkDir(pkgDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if info.IsDir() {
+		if d.IsDir() {
 			return nil
 		}
-		name := info.Name()
-		for _, c := range candidates {
-			if name == c || name == filepath.Base(c) {
-				found = path
-				return filepath.SkipDir
-			}
+		if _, ok := leaves[d.Name()]; ok {
+			found = path
+			return filepath.SkipAll
 		}
 		return nil
 	})

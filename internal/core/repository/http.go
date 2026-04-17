@@ -3,7 +3,7 @@ package repository
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,7 +14,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// HTTPRepository implementa la interfaz Repository para repositorios HTTP
+// defaultHTTPTimeout is applied to each individual request the
+// HTTPRepository makes when syncing. The timeout is per-request (not for
+// the whole Sync call) so larger repositories can still complete.
+const defaultHTTPTimeout = 30 * time.Second
+
+// HTTPRepository implements the Repository interface for repositories
+// served over plain HTTP(S).
 type HTTPRepository struct {
 	name      string
 	url       string
@@ -22,9 +28,10 @@ type HTTPRepository struct {
 	priority  int
 	lastSync  time.Time
 	manifests map[string]*manifest.Manifest
+	client    *http.Client
 }
 
-// NewHTTPRepository crea un nuevo repositorio HTTP
+// NewHTTPRepository creates a new HTTP-backed repository.
 func NewHTTPRepository(name, url, cacheDir string, priority int) (*HTTPRepository, error) {
 	return &HTTPRepository{
 		name:      name,
@@ -32,52 +39,52 @@ func NewHTTPRepository(name, url, cacheDir string, priority int) (*HTTPRepositor
 		cacheDir:  cacheDir,
 		priority:  priority,
 		manifests: make(map[string]*manifest.Manifest),
+		client:    &http.Client{Timeout: defaultHTTPTimeout},
 	}, nil
 }
 
-// GetName devuelve el nombre del repositorio
+// GetName returns the repository name.
 func (r *HTTPRepository) GetName() string {
 	return r.name
 }
 
-// GetURL devuelve la URL del repositorio
+// GetURL returns the repository URL.
 func (r *HTTPRepository) GetURL() string {
 	return r.url
 }
 
-// GetType devuelve el tipo del repositorio
+// GetType returns the repository type.
 func (r *HTTPRepository) GetType() string {
 	return "http"
 }
 
-// GetPriority devuelve la prioridad del repositorio
+// GetPriority returns the configured repository priority.
 func (r *HTTPRepository) GetPriority() int {
 	return r.priority
 }
 
-// GetLastSync devuelve la fecha de la última sincronización
+// GetLastSync returns the timestamp of the last successful sync.
 func (r *HTTPRepository) GetLastSync() time.Time {
 	return r.lastSync
 }
 
-// Sync sincroniza el repositorio con la fuente remota
+// Sync fetches the index and every referenced manifest from the remote
+// repository.
 func (r *HTTPRepository) Sync() error {
-	// Crear directorio de caché si no existe
 	manifestsDir := filepath.Join(r.cacheDir, "manifests")
-	if err := os.MkdirAll(manifestsDir, 0755); err != nil {
-		return fmt.Errorf("error al crear directorio de manifiestos: %w", err)
+	if err := os.MkdirAll(manifestsDir, 0o755); err != nil {
+		return fmt.Errorf("create manifests dir: %w", err)
 	}
 
-	// Obtener el índice de manifiestos
 	indexURL := fmt.Sprintf("%s/index.json", r.url)
-	resp, err := http.Get(indexURL)
+	resp, err := r.client.Get(indexURL)
 	if err != nil {
-		return fmt.Errorf("error al obtener índice de manifiestos: %w", err)
+		return fmt.Errorf("fetch manifest index: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("error al obtener índice de manifiestos: código de estado %d", resp.StatusCode)
+		return fmt.Errorf("fetch manifest index: status %d", resp.StatusCode)
 	}
 
 	var index struct {
@@ -85,70 +92,73 @@ func (r *HTTPRepository) Sync() error {
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&index); err != nil {
-		return fmt.Errorf("error al decodificar índice de manifiestos: %w", err)
+		return fmt.Errorf("decode manifest index: %w", err)
 	}
 
-	// Descargar cada manifiesto
-	r.manifests = make(map[string]*manifest.Manifest)
+	next := make(map[string]*manifest.Manifest, len(index.Manifests))
 	for _, manifestName := range index.Manifests {
-		manifestURL := fmt.Sprintf("%s/manifests/%s.yaml", r.url, manifestName)
-		manifestResp, err := http.Get(manifestURL)
+		m, err := r.fetchManifest(manifestsDir, manifestName)
 		if err != nil {
-			fmt.Printf("Error al descargar manifiesto %s: %v\n", manifestName, err)
+			fmt.Fprintf(os.Stderr, "armada: %s: %v\n", manifestName, err)
 			continue
 		}
-
-		if manifestResp.StatusCode != http.StatusOK {
-			fmt.Printf("Error al descargar manifiesto %s: código de estado %d\n", manifestName, manifestResp.StatusCode)
-			manifestResp.Body.Close()
+		if m == nil {
 			continue
 		}
-
-		// Leer el contenido del manifiesto
-		manifestData, err := ioutil.ReadAll(manifestResp.Body)
-		manifestResp.Body.Close()
-		if err != nil {
-			fmt.Printf("Error al leer manifiesto %s: %v\n", manifestName, err)
-			continue
-		}
-
-		// Guardar el manifiesto en caché
-		manifestPath := filepath.Join(manifestsDir, manifestName+".yaml")
-		if err := ioutil.WriteFile(manifestPath, manifestData, 0644); err != nil {
-			fmt.Printf("Error al guardar manifiesto %s en caché: %v\n", manifestName, err)
-			continue
-		}
-
-		// Parsear el manifiesto
-		var m manifest.Manifest
-		if err := yaml.Unmarshal(manifestData, &m); err != nil {
-			fmt.Printf("Error al parsear manifiesto %s: %v\n", manifestName, err)
-			continue
-		}
-
-		// Validar el manifiesto
-		errors := internalValidate.Validate(&m)
-		if len(errors) > 0 {
-			fmt.Printf("Advertencia: manifiesto inválido %s en repositorio %s\n", manifestName, r.name)
-			continue
-		}
-
-		r.manifests[m.Name] = &m
+		next[m.Name] = m
 	}
 
+	r.manifests = next
 	r.lastSync = time.Now()
 	return nil
 }
 
-// GetManifest obtiene un manifiesto específico del repositorio
+// fetchManifest downloads a single manifest into the cache and returns the
+// parsed+validated value, or nil if the manifest should be skipped.
+func (r *HTTPRepository) fetchManifest(manifestsDir, manifestName string) (*manifest.Manifest, error) {
+	manifestURL := fmt.Sprintf("%s/manifests/%s.yaml", r.url, manifestName)
+	resp, err := r.client.Get(manifestURL)
+	if err != nil {
+		return nil, fmt.Errorf("download: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("download: status %d", resp.StatusCode)
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read body: %w", err)
+	}
+
+	manifestPath := filepath.Join(manifestsDir, manifestName+".yaml")
+	if err := os.WriteFile(manifestPath, data, 0o644); err != nil {
+		return nil, fmt.Errorf("cache manifest: %w", err)
+	}
+
+	var m manifest.Manifest
+	if err := yaml.Unmarshal(data, &m); err != nil {
+		return nil, fmt.Errorf("parse manifest: %w", err)
+	}
+
+	if errs := internalValidate.Validate(&m); len(errs) > 0 {
+		fmt.Fprintf(os.Stderr, "armada: skipping invalid manifest %s in repository %s\n", manifestName, r.name)
+		return nil, nil
+	}
+
+	return &m, nil
+}
+
+// GetManifest looks up a manifest by tool name.
 func (r *HTTPRepository) GetManifest(toolName string) (*manifest.Manifest, error) {
 	if m, exists := r.manifests[toolName]; exists {
 		return m, nil
 	}
-	return nil, fmt.Errorf("manifiesto no encontrado: %s", toolName)
+	return nil, fmt.Errorf("manifest not found: %s", toolName)
 }
 
-// ListManifests devuelve todos los manifiestos disponibles en el repositorio
+// ListManifests returns all manifests currently cached in the repository.
 func (r *HTTPRepository) ListManifests() ([]*manifest.Manifest, error) {
 	manifests := make([]*manifest.Manifest, 0, len(r.manifests))
 	for _, m := range r.manifests {
