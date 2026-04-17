@@ -1,0 +1,30 @@
+name: nuclei
+version: 3.3.7
+description: Fast and customizable vulnerability scanner based on simple YAML DSL
+homepage: https://github.com/projectdiscovery/nuclei
+license: MIT
+categories: [security, scanner, recon]
+
+binaries: [nuclei]
+
+assets:
+  linux/amd64:
+    url: https://github.com/projectdiscovery/nuclei/releases/download/v3.3.7/nuclei_3.3.7_linux_amd64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+  linux/arm64:
+    url: https://github.com/projectdiscovery/nuclei/releases/download/v3.3.7/nuclei_3.3.7_linux_arm64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+  darwin/amd64:
+    url: https://github.com/projectdiscovery/nuclei/releases/download/v3.3.7/nuclei_3.3.7_macOS_amd64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+  darwin/arm64:
+    url: https://github.com/projectdiscovery/nuclei/releases/download/v3.3.7/nuclei_3.3.7_macOS_arm64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+  windows/amd64:
+    url: https://github.com/projectdiscovery/nuclei/releases/download/v3.3.7/nuclei_3.3.7_windows_amd64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip

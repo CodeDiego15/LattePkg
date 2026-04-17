@@ -1,0 +1,35 @@
+name: amass
+version: 4.2.0
+description: In-depth attack surface mapping and asset discovery
+homepage: https://github.com/owasp-amass/amass
+license: Apache-2.0
+categories: [security, recon, osint]
+
+binaries: [amass]
+
+assets:
+  linux/amd64:
+    url: https://github.com/owasp-amass/amass/releases/download/v4.2.0/amass_Linux_amd64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+    strip_components: 1
+  linux/arm64:
+    url: https://github.com/owasp-amass/amass/releases/download/v4.2.0/amass_Linux_arm64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+    strip_components: 1
+  darwin/amd64:
+    url: https://github.com/owasp-amass/amass/releases/download/v4.2.0/amass_Darwin_amd64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+    strip_components: 1
+  darwin/arm64:
+    url: https://github.com/owasp-amass/amass/releases/download/v4.2.0/amass_Darwin_arm64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+    strip_components: 1
+  windows/amd64:
+    url: https://github.com/owasp-amass/amass/releases/download/v4.2.0/amass_Windows_amd64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+    strip_components: 1

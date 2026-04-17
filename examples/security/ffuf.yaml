@@ -1,0 +1,30 @@
+name: ffuf
+version: 2.1.0
+description: Fast web fuzzer written in Go
+homepage: https://github.com/ffuf/ffuf
+license: MIT
+categories: [security, web, fuzzing]
+
+binaries: [ffuf]
+
+assets:
+  linux/amd64:
+    url: https://github.com/ffuf/ffuf/releases/download/v2.1.0/ffuf_2.1.0_linux_amd64.tar.gz
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: tar.gz
+  linux/arm64:
+    url: https://github.com/ffuf/ffuf/releases/download/v2.1.0/ffuf_2.1.0_linux_arm64.tar.gz
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: tar.gz
+  darwin/amd64:
+    url: https://github.com/ffuf/ffuf/releases/download/v2.1.0/ffuf_2.1.0_macOS_amd64.tar.gz
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: tar.gz
+  darwin/arm64:
+    url: https://github.com/ffuf/ffuf/releases/download/v2.1.0/ffuf_2.1.0_macOS_arm64.tar.gz
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: tar.gz
+  windows/amd64:
+    url: https://github.com/ffuf/ffuf/releases/download/v2.1.0/ffuf_2.1.0_windows_amd64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip

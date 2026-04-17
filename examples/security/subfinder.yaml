@@ -1,0 +1,30 @@
+name: subfinder
+version: 2.6.7
+description: Fast passive subdomain enumeration tool
+homepage: https://github.com/projectdiscovery/subfinder
+license: MIT
+categories: [security, recon, subdomain]
+
+binaries: [subfinder]
+
+assets:
+  linux/amd64:
+    url: https://github.com/projectdiscovery/subfinder/releases/download/v2.6.7/subfinder_2.6.7_linux_amd64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+  linux/arm64:
+    url: https://github.com/projectdiscovery/subfinder/releases/download/v2.6.7/subfinder_2.6.7_linux_arm64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+  darwin/amd64:
+    url: https://github.com/projectdiscovery/subfinder/releases/download/v2.6.7/subfinder_2.6.7_macOS_amd64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+  darwin/arm64:
+    url: https://github.com/projectdiscovery/subfinder/releases/download/v2.6.7/subfinder_2.6.7_macOS_arm64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
+  windows/amd64:
+    url: https://github.com/projectdiscovery/subfinder/releases/download/v2.6.7/subfinder_2.6.7_windows_amd64.zip
+    checksum: sha256:REPLACE_WITH_REAL_SHA256
+    type: zip
