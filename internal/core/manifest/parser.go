@@ -1,6 +1,6 @@
 // Package manifest provides manifest parsing, validation and
 // management utilities for Armada. It builds on the public types from
-// github.com/DiegoDev2/Fleet/pkg/manifest.
+// github.com/DiegoDev2/armada/pkg/manifest.
 package manifest
 
 import (
@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 	"gopkg.in/yaml.v3"
 )
 

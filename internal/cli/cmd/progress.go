@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/DiegoDev2/Fleet/internal/cli/ui"
-	"github.com/DiegoDev2/Fleet/internal/core/manifest"
-	"github.com/DiegoDev2/Fleet/internal/download"
+	"github.com/DiegoDev2/armada/internal/cli/ui"
+	"github.com/DiegoDev2/armada/internal/core/manifest"
+	"github.com/DiegoDev2/armada/internal/download"
 	"github.com/schollz/progressbar/v3"
 )
 

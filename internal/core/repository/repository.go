@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 )
 
 // Repository define la interfaz que deben implementar todos los repositorios

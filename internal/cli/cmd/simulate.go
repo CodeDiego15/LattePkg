@@ -6,9 +6,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/DiegoDev2/Fleet/internal/cli/ui"
-	coremanifest "github.com/DiegoDev2/Fleet/internal/core/manifest"
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	"github.com/DiegoDev2/armada/internal/cli/ui"
+	coremanifest "github.com/DiegoDev2/armada/internal/core/manifest"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 	"github.com/spf13/cobra"
 )
 

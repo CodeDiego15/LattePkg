@@ -48,7 +48,7 @@ jobs:
           VERSION="${GITHUB_REF_NAME}"
           OUT="dist/armada-${GOOS}-${GOARCH}${{ matrix.ext }}"
           go build -trimpath \
-            -ldflags "-s -w -X github.com/DiegoDev2/Fleet/internal/cli/cmd.Version=${VERSION}" \
+            -ldflags "-s -w -X github.com/DiegoDev2/armada/internal/cli/cmd.Version=${VERSION}" \
             -o "${OUT}" ./cmd/armada
 
       - name: Package

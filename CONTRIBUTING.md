@@ -1,6 +1,6 @@
-# Contributing to Fleet
+# Contributing to Armada
 
-Thank you for your interest in contributing to **Fleet**! We value your help in improving this project. Below are guidelines on how you can contribute effectively.
+Thank you for your interest in contributing to **Armada**! We value your help in improving this project. Below are guidelines on how you can contribute effectively.
 
 ## Table of Contents
 
@@ -16,11 +16,11 @@ Thank you for your interest in contributing to **Fleet**! We value your help in 
 
 ### 1. Clone the Repository
 
-Clone the **Fleet** repository to your local machine:
+Clone the **Armada** repository to your local machine:
 
 ```bash
-git clone https://github.com/DiegoDev2/Fleet.git
-cd Fleet
+git clone https://github.com/DiegoDev2/armada.git
+cd armada
 ```
 ### 2. Create a Branch
 

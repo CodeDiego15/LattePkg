@@ -9,13 +9,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DiegoDev2/Fleet/internal/cli/ui"
-	"github.com/DiegoDev2/Fleet/internal/config"
-	"github.com/DiegoDev2/Fleet/internal/core/installer"
-	coremanifest "github.com/DiegoDev2/Fleet/internal/core/manifest"
-	"github.com/DiegoDev2/Fleet/internal/core/repository"
-	"github.com/DiegoDev2/Fleet/internal/state"
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	"github.com/DiegoDev2/armada/internal/cli/ui"
+	"github.com/DiegoDev2/armada/internal/config"
+	"github.com/DiegoDev2/armada/internal/core/installer"
+	coremanifest "github.com/DiegoDev2/armada/internal/core/manifest"
+	"github.com/DiegoDev2/armada/internal/core/repository"
+	"github.com/DiegoDev2/armada/internal/state"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 	"github.com/spf13/cobra"
 )
 

@@ -2,9 +2,9 @@
 
 > The reproducible security toolbox. One YAML, every platform, zero sudo.
 
-[![Build](https://github.com/DiegoDev2/Fleet/actions/workflows/build.yml/badge.svg)](https://github.com/DiegoDev2/Fleet/actions/workflows/build.yml)
-[![Test](https://github.com/DiegoDev2/Fleet/actions/workflows/test.yml/badge.svg)](https://github.com/DiegoDev2/Fleet/actions/workflows/test.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/DiegoDev2/Fleet)](https://goreportcard.com/report/github.com/DiegoDev2/Fleet)
+[![Build](https://github.com/DiegoDev2/armada/actions/workflows/build.yml/badge.svg)](https://github.com/DiegoDev2/armada/actions/workflows/build.yml)
+[![Test](https://github.com/DiegoDev2/armada/actions/workflows/test.yml/badge.svg)](https://github.com/DiegoDev2/armada/actions/workflows/test.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/DiegoDev2/armada)](https://goreportcard.com/report/github.com/DiegoDev2/armada)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Armada is a user-space package manager for security tools, CLI utilities and
@@ -13,9 +13,10 @@ and Armada downloads the right asset for your OS and architecture, verifies
 the SHA-256 checksum and links the binaries into `~/.armada/bin`. No `sudo`,
 no system package manager, no surprise mutations to `/usr`.
 
-> **Note on the name:** this repository used to be called *Fleet*. The project
-> has been renamed to **Armada** to avoid the trademark and SEO collisions
-> with JetBrains Fleet and FleetDM. The Go module path is unchanged for now.
+> **Note on the name:** this repository used to be called *Fleet*. It has
+> been renamed to **Armada** to avoid trademark and SEO collisions with
+> JetBrains Fleet and FleetDM. GitHub keeps a permanent redirect from the old
+> URL, and the Go module path is now `github.com/DiegoDev2/armada`.
 
 ## Why Armada
 
@@ -35,7 +36,7 @@ no system package manager, no surprise mutations to `/usr`.
 ### One-liner (Linux and macOS)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/DiegoDev2/Fleet/main/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/DiegoDev2/armada/main/scripts/install.sh | sh
 ```
 
 The installer drops the `armada` binary into `~/.armada/bin`. Add that
@@ -48,12 +49,12 @@ echo 'export PATH="$HOME/.armada/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
 ### From source
 
 ```sh
-go install github.com/DiegoDev2/Fleet/cmd/armada@latest
+go install github.com/DiegoDev2/armada/cmd/armada@latest
 ```
 
 ### Pre-built binaries
 
-See the [Releases](https://github.com/DiegoDev2/Fleet/releases) page for
+See the [Releases](https://github.com/DiegoDev2/armada/releases) page for
 `tar.gz` / `zip` archives and `.sha256` files.
 
 ## Quickstart

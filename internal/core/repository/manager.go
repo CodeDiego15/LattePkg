@@ -10,8 +10,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/DiegoDev2/Fleet/internal/integrity"
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	"github.com/DiegoDev2/armada/internal/integrity"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 )
 
 // Manager owns a collection of Repository instances and an on-disk cache.

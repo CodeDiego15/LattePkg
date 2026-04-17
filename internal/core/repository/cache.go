@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	internalManifest "github.com/DiegoDev2/Fleet/internal/core/manifest"
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	internalManifest "github.com/DiegoDev2/armada/internal/core/manifest"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 )
 
 type Cache struct {
