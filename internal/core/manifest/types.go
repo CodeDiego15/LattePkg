@@ -1,7 +1,7 @@
 package manifest
 
 import (
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 )
 
 type ManifestSource struct {

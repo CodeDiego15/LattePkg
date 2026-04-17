@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"time"
 
-	internalValidate "github.com/DiegoDev2/Fleet/internal/core/manifest"
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	internalValidate "github.com/DiegoDev2/armada/internal/core/manifest"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 	"gopkg.in/yaml.v3"
 )
 

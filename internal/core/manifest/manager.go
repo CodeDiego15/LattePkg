@@ -3,7 +3,7 @@ package manifest
 import (
 	"fmt"
 
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 )
 
 type Manager struct {

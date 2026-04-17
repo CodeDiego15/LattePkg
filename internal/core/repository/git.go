@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"time"
 
-	internalManifest "github.com/DiegoDev2/Fleet/internal/core/manifest"
-	internalValidate "github.com/DiegoDev2/Fleet/internal/core/manifest"
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	internalManifest "github.com/DiegoDev2/armada/internal/core/manifest"
+	internalValidate "github.com/DiegoDev2/armada/internal/core/manifest"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"

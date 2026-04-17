@@ -2,19 +2,19 @@
 # Armada one-line installer.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/DiegoDev2/Fleet/main/scripts/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/DiegoDev2/armada/main/scripts/install.sh | sh
 #
 # Environment variables:
 #   ARMADA_HOME      install root (default: $HOME/.armada)
 #   ARMADA_VERSION   release tag to install (default: latest)
 #   ARMADA_OWNER     GitHub owner (default: DiegoDev2)
-#   ARMADA_REPO      GitHub repo  (default: Fleet)
+#   ARMADA_REPO      GitHub repo  (default: armada)
 set -eu
 
 ARMADA_HOME="${ARMADA_HOME:-$HOME/.armada}"
 ARMADA_VERSION="${ARMADA_VERSION:-latest}"
 ARMADA_OWNER="${ARMADA_OWNER:-DiegoDev2}"
-ARMADA_REPO="${ARMADA_REPO:-Fleet}"
+ARMADA_REPO="${ARMADA_REPO:-armada}"
 
 log() { printf '==> %s\n' "$*"; }
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }

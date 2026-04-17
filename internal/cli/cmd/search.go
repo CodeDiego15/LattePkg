@@ -5,9 +5,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/DiegoDev2/Fleet/internal/cli/ui"
-	"github.com/DiegoDev2/Fleet/internal/config"
-	"github.com/DiegoDev2/Fleet/internal/core/repository"
+	"github.com/DiegoDev2/armada/internal/cli/ui"
+	"github.com/DiegoDev2/armada/internal/config"
+	"github.com/DiegoDev2/armada/internal/core/repository"
 	"github.com/spf13/cobra"
 )
 

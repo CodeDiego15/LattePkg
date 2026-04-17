@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/DiegoDev2/Fleet/internal/core/manifest"
+	"github.com/DiegoDev2/armada/internal/core/manifest"
 	"github.com/stretchr/testify/assert"
 )
 

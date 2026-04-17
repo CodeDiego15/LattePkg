@@ -1,8 +1,8 @@
-# Fleet
+# Armada
 
 ## Security Policy
 
-At Fleet, we prioritize the security and privacy of our users and their data. If you have discovered a security vulnerability in any of our services or software, we encourage you to report it as soon as possible.
+At Armada, we prioritize the security and privacy of our users and their data. If you have discovered a security vulnerability in any of our services or software, we encourage you to report it as soon as possible.
 
 ### Reporting a Vulnerability
 

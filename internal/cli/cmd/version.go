@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/DiegoDev2/Fleet/internal/cli/ui"
+	"github.com/DiegoDev2/armada/internal/cli/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -33,7 +33,7 @@ func newVersionCmd() *cobra.Command {
 					runtime.GOOS, runtime.GOARCH, runtime.Version()[2:])))
 			fmt.Fprintf(out, "  %s %s\n\n",
 				ui.Muted("home:"),
-				ui.Muted("https://github.com/DiegoDev2/Fleet"))
+				ui.Muted("https://github.com/DiegoDev2/armada"))
 		},
 	}
 }

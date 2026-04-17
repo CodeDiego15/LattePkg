@@ -1,4 +1,4 @@
-module github.com/DiegoDev2/Fleet
+module github.com/DiegoDev2/armada
 
 go 1.23.0
 

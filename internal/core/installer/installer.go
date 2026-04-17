@@ -11,13 +11,13 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/DiegoDev2/Fleet/internal/archive"
-	"github.com/DiegoDev2/Fleet/internal/config"
-	"github.com/DiegoDev2/Fleet/internal/download"
-	"github.com/DiegoDev2/Fleet/internal/integrity"
-	"github.com/DiegoDev2/Fleet/internal/platform"
-	"github.com/DiegoDev2/Fleet/internal/state"
-	"github.com/DiegoDev2/Fleet/pkg/manifest"
+	"github.com/DiegoDev2/armada/internal/archive"
+	"github.com/DiegoDev2/armada/internal/config"
+	"github.com/DiegoDev2/armada/internal/download"
+	"github.com/DiegoDev2/armada/internal/integrity"
+	"github.com/DiegoDev2/armada/internal/platform"
+	"github.com/DiegoDev2/armada/internal/state"
+	"github.com/DiegoDev2/armada/pkg/manifest"
 )
 
 // Options tweak installer behaviour.

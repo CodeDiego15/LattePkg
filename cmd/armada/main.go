@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/DiegoDev2/Fleet/internal/cli/cmd"
+	"github.com/DiegoDev2/armada/internal/cli/cmd"
 )
 
 func main() {

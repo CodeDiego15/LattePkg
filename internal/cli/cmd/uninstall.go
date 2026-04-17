@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/DiegoDev2/Fleet/internal/cli/ui"
-	"github.com/DiegoDev2/Fleet/internal/config"
-	"github.com/DiegoDev2/Fleet/internal/core/installer"
-	"github.com/DiegoDev2/Fleet/internal/state"
+	"github.com/DiegoDev2/armada/internal/cli/ui"
+	"github.com/DiegoDev2/armada/internal/config"
+	"github.com/DiegoDev2/armada/internal/core/installer"
+	"github.com/DiegoDev2/armada/internal/state"
 	"github.com/spf13/cobra"
 )
 
