@@ -4,8 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/DiegoDev2/Fleet/internal/cli/ui"
 	"github.com/DiegoDev2/Fleet/internal/config"
 	"github.com/DiegoDev2/Fleet/internal/core/installer"
 	coremanifest "github.com/DiegoDev2/Fleet/internal/core/manifest"
@@ -66,21 +70,26 @@ func newInstallCmd() *cobra.Command {
 			ctx, cancel := context.WithCancel(cmd.Context())
 			defer cancel()
 
-			fmt.Printf("==> Installing %s %s for %s\n", m.Name, m.Version, inst.Platform())
+			out := cmd.OutOrStdout()
+			printInstallHeader(out, m, inst.Platform().Key())
+
+			started := time.Now()
 			entry, err := inst.Install(ctx, m, installer.Options{
 				Force:    force,
-				Progress: textProgress(cmd.OutOrStdout()),
+				Progress: newDownloadProgress(ui.ProgressWriter(), filepath.Base(assetURL(m, inst.Platform().Key()))),
 			})
 			if errors.Is(err, installer.ErrAlreadyInstalled) {
-				fmt.Printf("==> %s %s already installed (use --force to reinstall)\n", m.Name, m.Version)
+				ui.Info(out, fmt.Sprintf("%s %s already installed  %s",
+					ui.Bold(m.Name), m.Version,
+					ui.Muted("(use --force to reinstall)")))
 				return nil
 			}
 			if err != nil {
+				ui.Fail(out, err.Error())
 				return err
 			}
 
-			fmt.Printf("==> Linked binaries: %s\n", strings.Join(entry.Binaries, ", "))
-			fmt.Printf("==> Done. Make sure %s is on your PATH.\n", paths.Bin)
+			printInstallSuccess(out, entry, paths.Bin, time.Since(started))
 			return nil
 		},
 	}
@@ -88,6 +97,51 @@ func newInstallCmd() *cobra.Command {
 	c.Flags().StringVar(&fromFile, "from", "", "install from a local manifest YAML file")
 	c.Flags().BoolVarP(&force, "force", "f", false, "reinstall even if the same version is already present")
 	return c
+}
+
+func printInstallHeader(w io.Writer, m *manifest.Manifest, key string) {
+	rows := []string{
+		fmt.Sprintf("%s  %s", ui.Bold(m.Name), ui.Accent(m.Version)),
+	}
+	if m.Description != "" {
+		rows = append(rows, ui.Muted(m.Description))
+	}
+	meta := []string{key}
+	if asset, ok := m.AssetFor(key); ok {
+		if asset.Type != "" {
+			meta = append(meta, asset.Type)
+		}
+	}
+	rows = append(rows, ui.Muted(strings.Join(meta, "  "+ui.GlyphDot+"  ")))
+	ui.Section(w, "Installing", rows)
+}
+
+func printInstallSuccess(w io.Writer, entry state.Installed, binDir string, elapsed time.Duration) {
+	for _, b := range entry.Binaries {
+		ui.Success(w, fmt.Sprintf("linked %s %s %s",
+			ui.Bold(b),
+			ui.Muted(ui.GlyphArrow),
+			filepath.Join(binDir, b)))
+	}
+	fmt.Fprintln(w)
+	fmt.Fprintf(w, "  %s %s %s  %s\n",
+		ui.Chip(" ready "),
+		ui.Bold(entry.Name),
+		ui.Accent(entry.Version),
+		ui.Muted(fmt.Sprintf("in %s", elapsed.Round(100*time.Millisecond))))
+	fmt.Fprintf(w, "  %s %s\n",
+		ui.Muted("run:"),
+		ui.Accent(entry.Name+" --help"))
+	fmt.Fprintf(w, "  %s %s\n",
+		ui.Muted("path:"),
+		ui.Muted(binDir))
+}
+
+func assetURL(m *manifest.Manifest, key string) string {
+	if a, ok := m.AssetFor(key); ok {
+		return a.URL
+	}
+	return ""
 }
 
 func resolveManifest(paths config.Paths, name string) (*manifest.Manifest, error) {

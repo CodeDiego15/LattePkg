@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/DiegoDev2/Fleet/internal/cli/ui"
 	"github.com/DiegoDev2/Fleet/internal/config"
 	"github.com/DiegoDev2/Fleet/internal/core/installer"
 	"github.com/DiegoDev2/Fleet/internal/state"
@@ -24,11 +25,18 @@ func newUninstallCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			entry, existed := store.Get(args[0])
 			inst := installer.New(paths, store)
 			if err := inst.Uninstall(args[0]); err != nil {
 				return err
 			}
-			fmt.Printf("==> Removed %s\n", args[0])
+			out := cmd.OutOrStdout()
+			if existed {
+				ui.Success(out, fmt.Sprintf("removed %s  %s",
+					ui.Bold(entry.Name), ui.Accent(entry.Version)))
+			} else {
+				ui.Success(out, fmt.Sprintf("removed %s", ui.Bold(args[0])))
+			}
 			return nil
 		},
 	}

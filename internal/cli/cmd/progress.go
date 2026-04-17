@@ -4,23 +4,57 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/DiegoDev2/Fleet/internal/cli/ui"
 	"github.com/DiegoDev2/Fleet/internal/core/manifest"
 	"github.com/DiegoDev2/Fleet/internal/download"
+	"github.com/schollz/progressbar/v3"
 )
 
-// textProgress returns a ProgressFunc that prints a single-line progress
-// update to w. It is safe to pass nil if w does not support line rewriting.
-func textProgress(w io.Writer) download.ProgressFunc {
-	return func(current, total int64) {
-		if total > 0 {
-			pct := float64(current) / float64(total) * 100
-			fmt.Fprintf(w, "\r   %s / %s  (%.1f%%)    ",
-				humanBytes(current), humanBytes(total), pct)
-			if current >= total {
-				fmt.Fprintln(w)
+// newDownloadProgress returns a ProgressFunc that drives a styled progress
+// bar on the given writer. When the terminal is not interactive, a plain
+// line is emitted once the transfer completes so logs stay readable.
+func newDownloadProgress(w io.Writer, label string) download.ProgressFunc {
+	if !ui.PlainTTY() {
+		var total int64
+		return func(current, t int64) {
+			if t > 0 {
+				total = t
 			}
-		} else {
-			fmt.Fprintf(w, "\r   %s    ", humanBytes(current))
+			if total > 0 && current >= total {
+				fmt.Fprintf(w, "    %s  %s\n",
+					ui.Muted("downloaded"),
+					humanBytes(total))
+			}
+		}
+	}
+
+	var bar *progressbar.ProgressBar
+	return func(current, total int64) {
+		if bar == nil {
+			bar = progressbar.NewOptions64(total,
+				progressbar.OptionSetWriter(w),
+				progressbar.OptionSetDescription("  "+ui.Accent(ui.GlyphDownload+" downloading")+"  "+ui.Muted(label)),
+				progressbar.OptionSetWidth(24),
+				progressbar.OptionShowBytes(true),
+				progressbar.OptionSetPredictTime(false),
+				progressbar.OptionThrottle(80_000_000),
+				progressbar.OptionSetRenderBlankState(true),
+				progressbar.OptionShowCount(),
+				progressbar.OptionSetTheme(progressbar.Theme{
+					Saucer:        "█",
+					SaucerPadding: "░",
+					BarStart:      "",
+					BarEnd:        "",
+				}),
+				progressbar.OptionOnCompletion(func() { fmt.Fprintln(w) }),
+			)
+		}
+		if total > 0 && bar.GetMax64() != total {
+			bar.ChangeMax64(total)
+		}
+		_ = bar.Set64(current)
+		if total > 0 && current >= total {
+			_ = bar.Finish()
 		}
 	}
 }

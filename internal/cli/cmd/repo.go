@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/DiegoDev2/Fleet/internal/cli/ui"
 	"github.com/DiegoDev2/Fleet/internal/config"
 	"github.com/DiegoDev2/Fleet/internal/core/repository"
 	"github.com/spf13/cobra"
@@ -50,7 +52,8 @@ func newRepoAddCmd() *cobra.Command {
 			if err := cfg.Save(paths.ConfigFile); err != nil {
 				return err
 			}
-			fmt.Printf("==> Added %s (%s)\n", args[0], args[1])
+			ui.Success(cmd.OutOrStdout(), fmt.Sprintf("added repository %s  %s",
+				ui.Bold(args[0]), ui.Muted(args[1])))
 			return nil
 		},
 	}
@@ -80,7 +83,7 @@ func newRepoRemoveCmd() *cobra.Command {
 			if err := cfg.Save(paths.ConfigFile); err != nil {
 				return err
 			}
-			fmt.Printf("==> Removed %s\n", args[0])
+			ui.Success(cmd.OutOrStdout(), fmt.Sprintf("removed repository %s", ui.Bold(args[0])))
 			return nil
 		},
 	}
@@ -101,13 +104,24 @@ func newRepoListCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			out := cmd.OutOrStdout()
 			if len(cfg.Repositories) == 0 {
-				fmt.Println("no repositories configured")
+				ui.Info(out, "no repositories configured")
+				fmt.Fprintf(out, "  %s %s\n",
+					ui.Muted("run:"),
+					ui.Accent("armada repo add <name> <url>"))
 				return nil
 			}
+			rows := make([][]string, 0, len(cfg.Repositories))
 			for _, r := range cfg.Repositories {
-				fmt.Printf("%-16s %-6s prio=%d  %s\n", r.Name, r.Type, r.Priority, r.URL)
+				rows = append(rows, []string{
+					ui.Bold(r.Name),
+					ui.Muted(r.Type),
+					ui.Accent(strconv.Itoa(r.Priority)),
+					r.URL,
+				})
 			}
+			ui.Table(out, []string{"NAME", "TYPE", "PRIORITY", "URL"}, rows)
 			return nil
 		},
 	}
@@ -137,10 +151,15 @@ func newRepoSyncCmd() *cobra.Command {
 			for _, r := range cfg.Repositories {
 				_ = mgr.AddRepository(r.Name, r.URL, r.Type, r.Priority)
 			}
+			out := cmd.OutOrStdout()
+			ui.Info(out, fmt.Sprintf("%s syncing %d repositor%s",
+				ui.GlyphRefresh,
+				len(cfg.Repositories),
+				map[bool]string{true: "y", false: "ies"}[len(cfg.Repositories) == 1]))
 			if err := mgr.SyncAllRepositories(); err != nil {
 				return err
 			}
-			fmt.Println("==> Repositories synced")
+			ui.Success(out, "repositories synced")
 			return nil
 		},
 	}
